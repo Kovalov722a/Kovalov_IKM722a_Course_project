@@ -8,6 +8,7 @@ namespace Kovalov_722a_Course_project
 {
     class MajorWork
     {
+        private System.DateTime TimeBegin; // час початку роботи програми
         // Вміст робочого об'єкта 
         // Поля 
         private string Data; //вхідні дані 
@@ -33,6 +34,16 @@ namespace Kovalov_722a_Course_project
             {
                 this.Result = Convert.ToString(false);
             }
+        }
+
+        public void SetTime() // метод запису часу початку роботи програми
+        {
+            this.TimeBegin = System.DateTime.Now;
+        }
+
+        public System.DateTime GetTime() // Метод отримання часу завершення програми
+        {
+            return this.TimeBegin;
         }
     }
 }
