@@ -24,6 +24,18 @@ namespace Kovalov_722a_Course_project
             return this.Result;// метод відображення результату 
         }
         // У методі Task реалізується завдання: якщо кількість введених цифр більше 5, // то результат = true, інакше False. 
+
+        private string SaveFileName;// ім’я файлу для запису
+        private string OpenFileName;// ім’я файлу для читання
+        public void WriteSaveFileName(string S)// метод запису даних в об'єкт
+        {
+            this.SaveFileName = S;// запам'ятати ім’я файлу для запису
+        }
+        public void WriteOpenFileName(string S)
+        {
+            this.OpenFileName = S;// запам'ятати ім’я файлу для відкриття
+        }
+
         public void Task()
         {// метод реалізації програмного завдання { 
             if (this.Data.Length > 5)
