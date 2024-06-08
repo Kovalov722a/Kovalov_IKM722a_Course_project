@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.IO;
+using System.IO.Ports;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -21,6 +22,9 @@ namespace Kovalov_722a_Course_project
         ToolStripLabel infoLabel;
         Timer timer;
         private SaveFileDialog sf;
+
+        string InputData = String.Empty;
+        delegate void SetTextCallback(string text);
 
         public Form1()
         {
@@ -42,21 +46,28 @@ namespace Kovalov_722a_Course_project
             tClock.Stop();
             MessageBox.Show("Минуло 25 секунд", "Увага");// Виведення повідомлення
                                                          // "Минуло 25 секунд" на екран
-tClock.Start();
+            tClock.Start();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
             MajorObject = new MajorWork();
             MajorObject.SetTime();
-            About A= new About();
+            About A = new About();
             A.tAbout.Start();
             A.ShowDialog(); // відображення діалогового вікна About
             this.Mode = true;
             MajorObject.Modify = false;// заборона запису
 
-            toolTip1.SetToolTip(bSearch, "Натисніть на кнопку дляпошуку"); 
+            toolTip1.SetToolTip(bSearch, "Натисніть на кнопку дляпошуку");
             toolTip1.IsBalloon = true;
+
+            // отримуємо список СОМ портов системи
+            string[] ports = SerialPort.GetPortNames();
+            foreach (string port in ports)
+            {
+                comboBox1.Items.Add(port);
+            };
         }
 
         private void bStart_Click(object sender, EventArgs e)
@@ -108,6 +119,8 @@ tClock.Start();
             s = (System.DateTime.Now - MajorObject.GetTime()).ToString();
             MessageBox.Show(s, "Час роботи програми"); // Виведення часу роботи програми і
                                                        // повідомлення "Час роботи програми" на екран
+            Application.DoEvents();//Обробляє всі повідомлення Windows, які в даний момент 
+                                   //знаходяться в черзі повідомлень.
         }
 
         private void вихідToolStripMenuItem_Click(object sender, EventArgs e)
@@ -139,10 +152,10 @@ tClock.Start();
             if (ofdOpen.ShowDialog() == DialogResult.OK) // Виклик діалогового вікна відкриття
                                                          // файлу
 
-{
+            {
                 MajorObject.WriteOpenFileName(ofdOpen.FileName); // відкриття
                                                                  // файлу
-                 MajorObject.ReadFromFile(dgwOpen); // читання даних з файлу
+                MajorObject.ReadFromFile(dgwOpen); // читання даних з файлу
             }
         }
 
@@ -164,7 +177,7 @@ tClock.Start();
                 catch
                 {
                     disk += disks[i] + "- не готовий" + (char)13; // якщо пристрій не готовий,
-                                                                   // то виведення на екран ім’я пристрою і повідомлення «не готовий»
+                                                                  // то виведення на екран ім’я пристрою і повідомлення «не готовий»
                 }
             }
 
@@ -377,5 +390,127 @@ TXT(*.txt)|*.txt|CSV-файл (*.csv)|*.csv|Bin-файл (*.bin)|*.bin";
                 richTextBox1.Text = File.ReadAllText(o.FileName, Encoding.Default);
             }
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (button2.Text == "Старт")
+            {
+                if (port.IsOpen) port.Close();
+                #region Задаем параметры порта
+                port.PortName = comboBox1.Text;
+                port.BaudRate = Convert.ToInt32(comboBox2.Text);
+                port.DataBits = Convert.ToInt32(comboBox3.Text);
+                switch (comboBox4.Text)
+                {
+                    case "Пробел":
+                        port.Parity = Parity.Space;
+                        break;
+                    case "Чет":
+                        port.Parity = Parity.Even;
+                        break;
+                    case "Нечет":
+                        port.Parity = Parity.Odd;
+                        break;
+                    case "Маркер":
+                        port.Parity = Parity.Mark;
+                        break;
+                    default:
+                        port.Parity = Parity.None;
+                        break;
+                }
+                switch (comboBox5.Text)
+                {
+                    case "2":
+                        port.StopBits = StopBits.Two;
+                        break;
+                    case "1.5":
+                        port.StopBits = StopBits.OnePointFive;
+                        break;
+                    case "Нет":
+                        port.StopBits = StopBits.None;
+                        break;
+
+                    default:
+                        port.StopBits = StopBits.One;
+                        break;
+                }
+                switch (comboBox6.Text)
+                {
+                    case "Xon/Xoff":
+                        port.Handshake = Handshake.XOnXOff;
+                        break;
+                    case "Аппаратное":
+                        port.Handshake = Handshake.RequestToSend;
+                        break;
+                    default:
+                        port.Handshake = Handshake.None;
+                        break;
+                }
+                #endregion
+                try
+                {
+                    port.Open();
+                    button2.Text = "Стоп";
+                    // button2.Enabled = false;
+                }
+                catch
+                {
+                    MessageBox.Show("Порт " + port.PortName + " неможливо відкрити!",
+
+                    "Помилка!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+                    comboBox1.SelectedText = "";
+                    button2.Text = "Старт";
+                }
+            }
+            else
+            {
+                if (port.IsOpen) port.Close();
+                button2.Text = "Старт";
+                // button2.Enabled = true;
+            }
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBox1.Text != "")
+
+            {
+                groupBox2.Enabled = true;
+                button2.Enabled = true;
+            }
+            else
+            {
+                groupBox2.Enabled = false;
+                button2.Enabled = false;
+            }
+        }
+
+        void AddData(string text)
+        {
+            listBox1.Items.Add(text);
+        }
+        private void SetText(string text)
+        {
+            if (this.listBox1.InvokeRequired)
+            {
+                SetTextCallback d = new SetTextCallback(SetText);
+                this.Invoke(d, new object[] { text });
+            }
+            else
+            {
+                this.AddData(text);
+            }
+        }
+
+        private void port_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            InputData = port.ReadExisting();
+            if (InputData != String.Empty)
+            {
+                SetText(InputData);
+            }
+        }
     }
+    
 }

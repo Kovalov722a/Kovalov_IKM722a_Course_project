@@ -310,6 +310,7 @@ while (S.Position < S.Length)
             this.OpenTextFileName = S;
         }
 
+
     }
 }
 
