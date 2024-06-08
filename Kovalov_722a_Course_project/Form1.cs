@@ -120,7 +120,9 @@ tClock.Start();
                                                          // файлу
 
 {
-                MessageBox.Show(ofdOpen.FileName);
+                MajorObject.WriteOpenFileName(ofdOpen.FileName); // відкриття
+                                                                 // файлу
+                 MajorObject.ReadFromFile(dgwOpen); // читання даних з файлу
             }
         }
 
@@ -170,6 +172,11 @@ tClock.Start();
                 if (MessageBox.Show("Дані не були збережені. Продовжити вихід?", "УВАГА",
                 MessageBoxButtons.YesNo) == DialogResult.No)
                     e.Cancel = true; // припинити закриття
+        }
+
+        private void bSearch_Click(object sender, EventArgs e)
+        {
+            MajorObject.Find(tbSearch.Text); //пошук
         }
     }
 }
