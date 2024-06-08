@@ -37,6 +37,7 @@ tClock.Start();
             A.tAbout.Start();
             A.ShowDialog(); // відображення діалогового вікна About
             this.Mode = true;
+            MajorObject.Modify = false;// заборона запису
         }
 
         private void bStart_Click(object sender, EventArgs e)
@@ -105,8 +106,10 @@ tClock.Start();
         {
             if (sfdSave.ShowDialog() == DialogResult.OK)// Виклик діалогового вікна збереження
                                                         // файлу
-{
-                MessageBox.Show(sfdSave.FileName);
+            {
+                MajorObject.WriteSaveFileName(sfdSave.FileName); // написання імені файлу
+                MajorObject.SaveToFile(); // метод збереження в файл 
+
             }
         }
 
